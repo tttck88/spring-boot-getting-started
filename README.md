@@ -6,13 +6,14 @@
 
 어떤 원리인지 알아보자면 다음과 같다
 
-`spring-boot-starter-parent` → `spring-boot-dependencie` → `spring-boot-dependencies`
+`spring-boot-starter-parent` → `spring-boot-dependencie`
 
-![스크린샷 2022-02-06 오후 7.16.54.png](./스크린샷 2022-02-06 오후 7.16.54.png)
+![스크린샷 2022-02-06 오후 7.16.54.png](https://user-images.githubusercontent.com/39619488/152677117-c2fc7bef-90b0-4de2-8166-f8c2984c094b.png)
 
-![스크린샷 2022-02-06 오후 7.18.00.png](./스크린샷 2022-02-06 오후 7.18.00.png)
+![스크린샷 2022-02-06 오후 7.18.00.png](https://user-images.githubusercontent.com/39619488/152677167-63674d9f-c8e5-4063-97e5-4fcc84994ff4.png)
 
-![스크린샷 2022-02-06 오후 7.18.36.png](./스크린샷 2022-02-06 오후 7.18.36.png)
+![스크린샷 2022-02-06 오후 7.18.00.png](https://user-images.githubusercontent.com/39619488/152677229-1fdddcf8-ff0d-4d8b-b29e-4d88560b6f95.png
+)
 
 `<dependencyManagement>` 에 추가한 라이브러리에 대한 버전이 정의되어 있으면
 
