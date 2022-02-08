@@ -22,3 +22,92 @@
 허나 스프링부트가 버전을 관리해주는 라이브러리가 아닌 경우에는 버전을 명시해주어여 하는데
 
 이는 배포되는 환경마다 버전이 다른 경우가 생길 수가 있기 때문이다.
+
+---
+
+# 자동 설정 이해
+
+`@SpringBootApplication` 에는 다음과 같은 어노테이션이 포함되어 있다
+
+`@SpringBootConfiguration` `@ComponentScan` `@EnableAutoConfiguration`
+
+스프링부트는 Bean을 두번 등록하는데
+
+첫번째로는`@ComponentScan` 을 통해 패키지 내의 `@Configuration` 설정된 클래스들을 읽어서 Bean으로 등록하고, 두번째로는 `@EnableAutoConfiguration` 을 통해 추가적인 Bean을 등록한다.
+
+![스크린샷 2022-02-07 오후 9.23.57.png](https://user-images.githubusercontent.com/39619488/152994153-b237ff43-fa4b-4669-8082-a86c8b95dbfc.png)
+
+추가적인 Bean은 메타파일의 spring.factories에 등록되어 있다.
+
+![스크린샷 2022-02-07 오후 9.26.00.png](https://user-images.githubusercontent.com/39619488/152994273-758c1bda-21f2-4d5d-905d-a42a0ed27713.png)
+
+![스크린샷 2022-02-07 오후 9.26.36.png](https://user-images.githubusercontent.com/39619488/152994335-7e8bf930-ec79-4f1c-a7d3-a6734d69a918.png)
+
+---
+
+# 자동 설정 구현 Starter와 AutoConfigure
+
+Xxx-Spring-Boot-Autoconfigure 모듈: 자동 설정
+
+Xxx-Spring-Boot-Starter 모듈: 필요한 의존성 정의
+
+그냥 하나로 만들고 싶을 때는? Xxx-Spring-Boot-Starter
+
+구현방법
+
+1. 의존성 추가
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-autoconfigure</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-autoconfigure-processor</artifactId>
+        <optional>true</optional>
+    </dependency>
+</dependencies>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>2.0.3.RELEASE</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+1. `@Configuration` 클래스 작성
+
+   ![스크린샷 2022-02-07 오후 9.26.36.png](https://user-images.githubusercontent.com/39619488/152994514-2ebe47a5-b368-4ead-a373-d95516673b97.png)
+
+2. src/main/resource/META-INF에 spring.factories 파일 만들기
+
+   ![스크린샷 2022-02-07 오후 9.41.25.png](https://user-images.githubusercontent.com/39619488/152994540-f682d72e-dade-4d68-90ea-7213f0c80183.png)
+
+3. spring.factories 안에 자동 설정 파일 추가
+
+   ![스크린샷 2022-02-07 오후 9.41.47.png](https://user-images.githubusercontent.com/39619488/152994596-2ff2b8cd-db69-4f26-bd72-2c7fda17040d.png)
+
+4. mvn install을 하면 자동설정 구현된 프로젝트가 jar파일 형태로 로컬에 생성되고, 추가하고자 하는 프로젝트에 해당 정보를 이용해서 의존성을 추가하면 Bean을 등록하지않아도 사용이 가능하다.
+
+   ![스크린샷 2022-02-07 오후 9.45.18.png](https://user-images.githubusercontent.com/39619488/152994628-3bf948e9-3aec-4d0b-9df0-6641c21ffb22.png)
+
+   ![스크린샷 2022-02-07 오후 9.48.21.png](https://user-images.githubusercontent.com/39619488/152994657-88b2370e-40e4-4ded-96bc-65fe838b08e4.png)
+
+   ![스크린샷 2022-02-07 오후 9.52.52.png](https://user-images.githubusercontent.com/39619488/152994699-ee5249d1-8f00-44d4-8c9b-0044669d1686.png)
+
+
+---
+
+# 자동 설정 구현 @ConfigurationProperties
+
+application.properties 통해서 구현
+
+---
