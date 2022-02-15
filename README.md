@@ -111,3 +111,88 @@ Xxx-Spring-Boot-Starter 모듈: 필요한 의존성 정의
 application.properties 통해서 구현
 
 ---
+
+# 내장 웹서버 이해
+
+스프링부트는 툴이다. 내장 서블릿 컨테이너를 쉽게 사용하게 해주는 툴이지 서버가 x
+
+기본적으로 의존성에 톰캣이 존재하고, 이는 자동설정을 통해 존재한다.(spring.factories에 존재)
+
+# 내장 웹서버 응용 : 컨테이너와 포트
+
+[https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto.webserver](https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto.webserver)
+
+자동설정된 톰캣이 아닌 다른 서블릿 컨테이너로 변경
+
+```xml
+    <exclusions>
+        <!-- Exclude the Tomcat dependency -->
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<!-- Use Jetty instead -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jetty</artifactId>
+</dependency>
+```
+
+웹서버 사용x application.properties
+
+`spring.main.web-application-type=none`
+
+포트 변경 [application.properties](http://application.properties) server.port = xxxx(0일시 랜덤)
+
+포트를 애플리케이션에 사용
+
+**3.5. Discover the HTTP Port at Runtime 참조**
+
+이벤트리스너 역할하는 클래스 추가 포트리스너
+
+# 내장 웹서버 응용 : HTTPS와 HTTP2
+
+HTTPS를 사용하기 위해서는 키스토어를 먼저 생성해야 한다.
+
+application.properties
+
+```
+server.ssl.key-store: keystore.p12
+server.ssl.key-store-password: 123456
+server.ssl.keyStoreType: PKCS12
+server.ssl.keyAlias: spring
+```
+
+터미널
+
+`keytool -genkey -alias spring -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 4000`
+
+톰캣이 사용하는 커넥터는 기본적으로 하나만 적용되기에 HTTP도 추가적으로 사용하기 위해서는
+
+선행되어야 할 작업이 있다.
+
+```java
+// 커넥터 추가
+@Bean
+public ServletWebServerFactory serverFactory() {
+    TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+    tomcat.addAdditionalTomcatConnectors(createStandardConnector());
+    return tomcat;
+}
+
+private Connector createStandardConnector() {
+    Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+    connector.setPort(8080);
+    return connector;
+}
+```
+
+HTTP2 활성화하기(SSL이 기본적으로 적용이 되어있어야함)
+
+undertow
+
+application.properties
+
+`server.http2.enabled=true`
