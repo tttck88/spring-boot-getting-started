@@ -195,4 +195,68 @@ undertow
 
 application.properties
 
-`server.http2.enabled=true`
+server.http2.enabled=true
+
+---
+
+# 독립적으로 실행 가능한 jar
+
+---
+
+# spring application
+
+로깅
+
+- 아무런 옵션없이 실행하면 애플리케이션의 로그레벨은 Info
+- vmoption에 -debug를 추가한다거나 해서 로그레벨을 디버그로 설정 가능
+
+배너
+
+- banner.txt | gif | jpg | png
+- classpath 또는 spring.banner.location
+- ${spring-boot.version} 등의 변수를 사용할 수 있음.
+- Banner 클래스 구현하고 SpringApplication.setBanner()로 설정 가능.
+- 배너 끄는 방법
+- SpringApplicationBuilder로 빌더 패턴 사용 가능
+
+ApplicationEvent 등록
+
+- bean으로 등록되어 있는 애들 중 해당하는 이벤트 리스너는 알아서 실행 됨
+   - 애플리케이션 컨텍스트가 만들어진 다음에 발생하는 이벤트들은 bean 등록 어노테이션을 통해 실행할 수 있다.
+   - 애플리케이션 컨텍스트가 만들어지기 전에 발생하는 이벤드들은 직접 등록을 해주어야 한다.
+
+    ```java
+    SpringApplication app = new SpringApplication(Application.class);
+    // 아래 이벤트는 애플리케이션 컨텍스트가 실행되기 이전에 발생하기 떄문에 bean으로 등록하는 것이 아닌, 작접 등록해야함
+    app.addListeners(new SampleListener());
+    
+    // 애플리케이션 컨텍스트가 실행되기 이전에 생성되기때문에 직접등록하지 않고 bean으로 등록하면 실행히 안된다.
+    public class SampleListener implements ApplicationListener<ApplicationStartingEvent> {
+    
+        @Override
+        public void onApplicationEvent(ApplicationStartingEvent applicationStartingEvent) {
+            System.out.println("Application is starting");
+        }
+    }
+    
+    // 자동으로 실행이 됨
+    @Component
+    public class SampleListener2 implements ApplicationListener<ApplicationStartedEvent> {
+    
+        @Override
+        public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
+            System.out.println("Application is starting");
+    
+        }
+    }
+    ```
+
+
+- 애플리케이션 아규먼트 사용하기
+   - ApplicationArguments를 빈으로 등록해 주니까 가져다 쓰면 됨.
+- 애플리케이션 실행한 뒤 뭔가 실행하고 싶을 때
+   - ApplicationRunner (추천) 또는 CommandLineRunner
+   - 순서 지정 가능 @Order
+
+
+---
