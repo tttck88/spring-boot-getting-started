@@ -8,17 +8,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class SampleRunner implements ApplicationRunner {
 
-//    @Value("${tttck.name}")
-//    private String name;
-//
-//    @Value("${tttck.age}")
-//    private String age;
+    @Autowired
+    private String hello;
 
     @Autowired
-    TttckProperties tttckProperties;
+    TttckProperties properties;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        System.out.println(tttckProperties.getName());
+        System.out.println(properties.getName());
+        System.out.println(properties.getFullName());
+        System.out.println(hello);
     }
 }
