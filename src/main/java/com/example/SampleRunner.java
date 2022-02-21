@@ -1,17 +1,21 @@
 package com.example;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationRunnerTest implements ApplicationRunner {
+public class SampleRunner implements ApplicationRunner {
+
+    @Value("${tttck.name}")
+    private String name;
+
+    @Value("${tttck.age}")
+    private String age;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // VM options : -Dfoo
-        System.out.println("foo: " + args.containsOption("foo"));
-        // Program arguments : --bar
-        System.out.println("bar: " + args.containsOption("bar"));
+        System.out.println("name");
     }
 }
