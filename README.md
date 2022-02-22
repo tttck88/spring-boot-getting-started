@@ -260,3 +260,184 @@ ApplicationEvent 등록
 
 
 ---
+
+# 외부설정파일
+
+애플리케이션에서 사용하는 여러가지 설정값들을 애플리케이션의 안팎애 정의해서 사용하는 기능
+
+- properties - 스프링부트가 애플리케이션을 구동할때 자동으로 로딩하는 파일 ex) application.properties
+- 커멘드라인아규먼트 ex) - java -jar target/springinit -0.0.1 -SNAPSHOT.jar —tttck.name = tttck
+- YAML
+- 환경변수
+
+application.properties
+
+```
+#JAR 안에 있는 application.properties
+tttck.name = tttck
+tttck.age = ${random.int}
+# 플레이스홀더 기능
+tttck.fullName = ${tttck.name} Han
+```
+
+```java
+@Component
+public class SampleRunner implements ApplicationRunner {
+
+    @Value("${tttck.name}")
+    private String name;
+
+    @Value("${tttck.age}")
+    private String age;
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        System.out.println("name");
+    }
+}
+
+```
+
+프로퍼티 우선 순위
+
+1. 유저 홈 디렉토리에 있는 spring-boot-dev-tools.properties
+2. 테스트에 있는 @TestPropertySource
+3. @SpringBootTest 애노테이션의 properties 애트리뷰트
+4. 커맨드 라인 아규먼트
+5. SPRING_APPLICATION_JSON (환경 변수 또는 시스템 프로티) 에 들어있는 프로퍼티
+6. ServletConfig 파라미터
+7. ServletContext 파라미터
+8. java:comp/env JNDI 애트리뷰트
+9. System.getProperties() 자바 시스템 프로퍼티
+10. OS 환경 변수
+11. RandomValuePropertySource
+12. JAR 밖에 있는 특정 프로파일용 application properties
+13. JAR 안에 있는 특정 프로파일용 application properties
+14. JAR 밖에 있는 application properties
+15. JAR 안에 있는 application properties
+16. @PropertySource
+17. 기본 프로퍼티 (SpringApplication.setDefaultProperties)
+
+application.properties 우선 순위 (높은게 낮은걸 덮어 씁니다.)
+
+1. file:./config/
+2. file:./
+3. classpath:/config/
+4. classpath:/
+
+test에 따로 application.properties가 있을 경우 main과 같이 다르면 빌드시 에러 발생할 수 있음
+
+왜냐하면 main에서 사용하려고 할 때 test에 해당 값이 없을 수 있기 때문에
+
+(테스트코드 빌드할때 src/main에 있는 소스를 클래스패스에 넣고 그 다음 테스트코드를 빌드하면서 덮어쓰게 된다.. 그 때 application.properties가 오버라이딩)
+
+이런 경우에 application.properties가 아닌 다른 이름으로 파일을 만들어서 사용하자
+
+test.properties
+
+```
+# main에 application.properties와 다르기때문에 오버라이딩되지 않고 둘다 남아있는 상태로 빌트가 된다.
+tttck.name=tttckTest3
+```
+
+```java
+@TestPropertySource(locations = "classpath:/test.properties")
+// 테스트에 있는 @TestPropertySource
+//@TestPropertySource(properties = "tttck.name=tttckTest3")
+// @SpringBootTest 어노테이션의 properties 애트리뷰트
+// @SpringBootTest(properties = "tttck.name=tttckTest2")
+public class ApplicationTest {
+
+    @Autowired
+    Environment environment;
+
+    @Test
+    public void contextLoads() {
+assertThat(environment.getProperty("tttck.name"))
+                .isEqualTo("tttckTest3");
+    }
+}
+```
+
+@ConfigurationProperties
+
+외부 설정 많을 경우 같은 key로 시작하는 외부설정을 묶어서 하나의 빈으로 등록할 수 있음
+
+```java
+@Component
+@ConfigurationProperties("tttck")
+@Validated
+public class TttckProperties {
+
+    @NotEmpty
+    private String name;
+    private int age;
+    private String fullName;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+}
+```
+
+```java
+@Component
+public class SampleRunner implements ApplicationRunner {
+
+//    @Value("${tttck.name}")
+//    private String name;
+//
+//    @Value("${tttck.age}")
+//    private String age;
+
+    @Autowired
+    TttckProperties tttckProperties;
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        System.out.println(tttckProperties.getName());
+    }
+}
+```
+
+융통성 있는 바인딩
+
+- context-path (케밥)
+- context_path (언드스코어)
+- contextPath (캐멀)
+- CONTEXTPATH
+
+프로퍼티 타입 컨버전
+
+- @DurationUnit
+
+프로퍼티 값 검증
+
+- @Validated
+- JSR-303 (@NotNull, ...)
+
+메타 정보 생성
+
+- @Value
+- SpEL 을 사용할 수 있지만...
+- 위에 있는 기능들은 전부 사용 못합니다.
