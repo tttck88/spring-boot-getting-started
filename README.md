@@ -441,3 +441,24 @@ public class SampleRunner implements ApplicationRunner {
 - @Value
 - SpEL 을 사용할 수 있지만...
 - 위에 있는 기능들은 전부 사용 못합니다.
+---
+
+# HttpMessageConverters
+
+- spring framework에서 제공하는 인터페이스, spring mvc에 일부분
+- Http요청 본문으로 들어오는 것을 객체로 변경하거나, 객체를 Http응답 본문으로 변경할때 사용된다.
+- *{“username”:”keesun”, “password”:”123”} <-> User*
+
+@ResonesBody
+
+@RequestBody
+
+- 데이터가 요청으로 들어올때 본문에 그 데이터가 들어있고, 그것을 내가 객체로 받고싶을때 사용되어짐
+
+HttpMessageConverters는 여러가지다. 그중에서 우리가 어떤 요청을 받았는지, 어떤 요청을 보내는지에 따라 사용되는 HttpMessageConverters가 달라진다.
+
+ex) 요청이 Json이고 적혀있는 본문도 Json일때, Json메시지컨버터가 사용되어 Json메시지를 객체로 컨터팅해준다.
+
+`public @ResponseBody User` 에서 User라는 객체 자체를 리턴하는 것이 아닌 Json메시지컨버터가 사용되어 Http문자로 Response해준다.
+
+cf) 그냥 String일 경우 String메시지컨버터가 사용되어진다.
