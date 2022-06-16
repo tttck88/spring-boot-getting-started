@@ -3,6 +3,7 @@ package com.example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,8 +12,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class RestRunner implements ApplicationRunner {
 
-//    @Autowired
-//    RestTemplateBuilder restTemplateBuilder;
+    @Autowired
+    RestTemplateBuilder restTemplateBuilder;
     @Autowired
     WebClient.Builder builder;
 
@@ -29,7 +30,7 @@ public class RestRunner implements ApplicationRunner {
 //
 //        String worldResult = restTemplate.getForObject("http://localhost:8080/world", String.class);
 //        System.out.println("worldResult = " + worldResult);
-        Mono<String> helloMono = webClient.get().uri("http://localhost:8080/hello")
+        Mono<String> helloMono = webClient.get().uri("/hello")
                 .retrieve()
                 .bodyToMono(String.class);
         helloMono.subscribe(s -> {
@@ -43,7 +44,7 @@ public class RestRunner implements ApplicationRunner {
             stopWatch.start();
         });
 
-        Mono<String> worldMono = webClient.get().uri("http://localhost:8080/world")
+        Mono<String> worldMono = webClient.get().uri("/world")
                 .retrieve()
                 .bodyToMono(String.class);
         worldMono.subscribe(s -> {
