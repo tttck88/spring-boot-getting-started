@@ -464,3 +464,73 @@ ex) 요청이 Json이고 적혀있는 본문도 Json일때, Json메시지컨버�
 `public @ResponseBody User` 에서 User라는 객체 자체를 리턴하는 것이 아닌 Json메시지컨버터가 사용되어 Http문자로 Response해준다.
 
 cf) 그냥 String일 경우 String메시지컨버터가 사용되어진다.
+
+---
+
+# 스프링 REST 클라이언트 RestTemplate과 WebClient
+
+- Rest Client는 스프링에서 제공하는 것
+- 스프링에서 RestTemplateBuilder, WebClientBuilder를 빈으로 등록해 줌
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-webflux</artifactId>
+</dependency>
+```
+
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+@AutoConfigureAfter({HttpMessageConvertersAutoConfiguration.class})
+@ConditionalOnClass({RestTemplate.class})
+@Conditional({RestTemplateAutoConfiguration.NotReactiveWebApplicationCondition.class})
+public class RestTemplateAutoConfiguration {
+    public RestTemplateAutoConfiguration() {
+    }
+
+    @Bean
+    @Lazy
+    @ConditionalOnMissingBean
+    public RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer restTemplateBuilderConfigurer) {
+        RestTemplateBuilder builder = new RestTemplateBuilder(new RestTemplateCustomizer[0]);
+        return restTemplateBuilderConfigurer.configure(builder);
+    }
+}
+```
+
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+@ConditionalOnClass({WebClient.class})
+@AutoConfigureAfter({CodecsAutoConfiguration.class, ClientHttpConnectorAutoConfiguration.class})
+public class WebClientAutoConfiguration {
+    public WebClientAutoConfiguration() {
+    }
+
+    @Bean
+    @Scope("prototype")
+    @ConditionalOnMissingBean
+    public Builder webClientBuilder(ObjectProvider<WebClientCustomizer> customizerProvider) {
+        Builder builder = WebClient.builder();
+        customizerProvider.orderedStream().forEach((customizer) -> {
+            customizer.customize(builder);
+        });
+        return builder;
+    }
+}
+```
+
+RestTemplate
+
+- Blocking I/O 기반의 Synchronous API
+
+WebClient
+
+- Non-Blocking I/O 기반의 Asynchronous API
